@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Themed Animation</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #cd55a7;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            transition: background-color 0.5s ease;
+        }
+
+        h1 {
+            color: #f6f5f6;
+            z-index: 1000;
+            position: relative;
+        }
+
+        .menu {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+            z-index: 1000;
+        }
+
+        button {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #f0eff0;
+            color: #5641e5;
+        }
+
+        button:hover {
+            transform: scale(1.1);
+            background: #b95c8b;
+            color: white;
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        #position {
+            position: fixed;
+            bottom: 70%;
+            left: 45%;
+        }
+
+        .sunflower {
+            position: relative;
+            height: 30px;
+            width: 30px;
+        }
+
+        .head {
+            animation: hmove 2s infinite linear;
+            height: 50px;
+            width: 62px;
+            position: relative;
+            left: 8px;
+            top: 39px;
+            transform-origin: 50% -7px;
+            user-select: none;
+        }
+
+        .head .eye {
+            background: #43699a;
+            border-radius: 10px;
+            height: 5px;
+            position: absolute;
+            top: 30px;
+            width: 5px;
+        }
+
+        .head .eye#eye-1 {
+            left: 17px;
+            animation: eye 4s linear infinite normal 0.5s;
+        }
+
+        .head .eye#eye-2 {
+            right: 17px;
+            animation: eye 4s linear infinite normal 0.5s;
+        }
+
+        .head .mouth {
+            background: #ecf0f1;
+            border-radius: 30px;
+            bottom: 2px;
+            clip: rect(8px, 15px, 16px, 0);
+            height: 16px;
+            margin-left: -7.5px;
+            position: absolute;
+            left: 50%;
+            width: 15px;
+        }
+
+        .petals {
+            z-index: -1;
+            border-radius: 100%;
+            display: inline-block;
+            background-color: #faaa18;
+            height: 50px;
+            width: 50px;
+            position: absolute;
+            animation: petals 2s infinite linear;
+            box-shadow: 15px 17px #ffe000,
+                -15px 17px #ffe000,
+                -22px -7px #ffe000,
+                0px -22px #ffe000,
+                22px -7px #ffe000;
+        }
+
+        .trunk {
+            height: 65px;
+            width: 5px;
+            background: #77b039;
+            left: 37px;
+            top: 100px;
+            position: absolute;
+            z-index: -2;
+            animation: trunk 2s infinite linear;
+        }
+
+        .left-branch {
+            background: #77b039;
+            height: 35px;
+            width: 9px;
+            position: absolute;
+            left: -12px;
+            top: 24px;
+            border-radius: 100% 0% 0% 0%;
+            transform: rotate(-50deg);
+        }
+
+        .right-branch {
+            background: #77b039;
+            height: 35px;
+            width: 9px;
+            position: absolute;
+            top: 24px;
+            left: 10px;
+            border-radius: 0% 100% 0% 0%;
+            transform: rotate(50deg);
+        }
+
+        .vase {
+            position: absolute;
+            top: 165px;
+            left: 13px;
+            height: 0;
+            width: 38px;
+            border-top: 45px solid #faaa18;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+        }
+
+        .vase:before {
+            content: '';
+            background: #f9a018;
+            width: 58px;
+            height: 20px;
+            top: -50px;
+            left: -10px;
+            position: absolute;
+            box-shadow: 0 5px 10px -9px black;
+        }
+
+        .snowflake {
+            position: absolute;
+            color: white;
+            pointer-events: none;
+            z-index: 1000;
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.8);
+        }
+
+        @keyframes snowfall {
+            0% {
+                transform: translateY(0) rotate(0deg);
+            }
+            100% {
+                transform: translateY(100vh) rotate(360deg);
+            }
+        }
+
+        .heart {
+            position: absolute;
+            pointer-events: none;
+            will-change: transform, opacity;
+            transform-origin: center center;
+        }
+
+        .welcome-popup {
+            position: fixed;
+            bottom: -100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.9);
+            padding: 15px 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            z-index: 1001;
+            transition: bottom 0.5s ease;
+        }
+
+        .welcome-popup.show {
+            bottom: 20px;
+        }
+        .audio-container {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+    background: rgba(240, 24, 24, 0.2);
+    padding: 10px;
+    border-radius: 10px;
+}
+
+        .speech-bubble {
+            position: absolute;
+            top: -10px;
+            left: 70px;
+            background: white;
+            border-radius: 15px;
+            padding: 10px 15px;
+            font-size: 16px;
+            opacity: 0;
+            width: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            z-index: 1000;
+            transition: all 0.5s ease;
+        }
+
+        .speech-bubble::before {
+            content: "";
+            position: absolute;
+            font-size: 24px;
+            bottom: -30px;
+            left: 10px;
+        }
+
+        .speech-bubble.show {
+            opacity: 1;
+            width: auto;
+            padding: 10px 30px 10px 15px;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(0) scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100vh) scale(0);
+                opacity: 0;
+            }
+        }
+
+        @keyframes petals {
+            0% { transform: rotate(0); left: 10px; }
+            25% { left: 20px; }
+            50% { left: 10px; }
+            75% { left: 20px; }
+            100% { transform: rotate(360deg); left: 10px; }
+        }
+
+        @keyframes hmove {
+            0% { left: 5px; }
+            25% { left: 15px; }
+            50% { left: 5px; }
+            75% { left: 15px; }
+            100% { left: 5px; }
+        }
+
+        @keyframes eye {
+            from {}
+            79% { height: 5px; }
+            80% { height: 0px; }
+            85% { height: 5px; }
+            to { height: 5px; }
+        }
+
+        @keyframes trunk {
+            0% { left: 34px; transform: rotate(-5deg); }
+            25% { left: 40px; transform: rotate(5deg); }
+            50% { left: 34px; transform: rotate(-5deg); }
+            75% { left: 40px; transform: rotate(5deg); }
+            100% { left: 34px; transform: rotate(-5deg); }
+        }
+    </style>
+</head>
+<body>
+
+    <h1> For Sonnie son son💓</h1>
+    <canvas id="canvas"></canvas>
+    <div id="position" class="sunflower">
+        <div class="head">
+            <div id="eye-1" class="eye"></div>
+            <div id="eye-2" class="eye"></div>
+            <div class="mouth"></div>
+        </div>
+        <div class="petals"></div>
+        <div class="trunk">
+            <div class="left-branch"></div>
+            <div class="right-branch"></div>
+        </div>
+        <div class="vase"></div>
+        <div class="speech-bubble"></div>
+    </div>
+    <div class="audio-container">
+        <audio src="Coldplay-Sparks.mp3" controls> Song</audio>
+    </div>
+    <div class="menu">
+        <button id="versionToggle">SON Button😎</button>
+        <button id="rainToggle">Rain</button>
+        <button id="snowToggle">❄️</button>
+    <button id="homeBtn">?👀?</button>
+</div>
+
+    </div>
+    <div class="welcome-popup">💗 This felt like you 💗</div>
+</body>
+</html>
+
+<script>
+    const canvas = document.getElementById("canvas");
+    const ctx = canvas.getContext("2d");
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    let flowers = [];
+    let raindrops = [];
+    let snow = false;
+    let snowflakes = [];
+    let rain = false;
+    let currentTheme = 'default';
+    let activeHearts = [];
+
+    const themes = {
+        default: {
+            background: '#FFC0CB',
+            colors: ["red", "yellow", "pink", "purple", "white"]
+        },
+        nversion: {
+            background: '#a64dff',
+            colors: ["#E6E6FA", "#9370DB", "#DDA0DD", "#d22929", "white"]
+        }
+    };
+
+    
+
+    // Add spiral heart animation styles
+    const styleSheet = document.createElement('style');
+    styleSheet.textContent = `
+        @keyframes spiral-float {
+            0% {
+                transform: scale(0) rotate(0deg);
+                opacity: 0;
+            }
+            20% {
+                opacity: 1;
+            }
+            100% {
+                transform: scale(1.5) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        .heart {
+            position: fixed;
+            color: #ff69b4;
+            pointer-events: none;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+    `;
+    document.head.appendChild(styleSheet);
+
+    function createSpiralHeart(index, totalHearts) {
+        const heart = document.createElement('div');
+        heart.className = 'heart';
+        heart.innerHTML = '❤';
+        
+        const angle = (index / totalHearts) * Math.PI * 4;
+        const radius = (index / totalHearts) * Math.min(window.innerWidth, window.innerHeight) * 0.4;
+        const centerX = window.innerWidth / 2;
+        const centerY = window.innerHeight / 2;
+        
+        const x = centerX + radius * Math.cos(angle);
+        const y = centerY + radius * Math.sin(angle);
+        
+        heart.style.left = `${x}px`;
+        heart.style.top = `${y}px`;
+        
+        const size = Math.random() * 20 + 20;
+        heart.style.fontSize = `${size}px`;
+        
+        heart.style.animation = `spiral-float ${2 + Math.random()}s ease-in-out`;
+        heart.style.animationDelay = `${index * 50}ms`;
+        
+        document.body.appendChild(heart);
+        
+        heart.addEventListener('animationend', () => {
+            heart.remove();
+        });
+
+        return heart;
+    }
+
+    // Version toggle with spiral hearts animation
+    document.getElementById("versionToggle").addEventListener("click", function() {
+        activeHearts.forEach(heart => heart.remove());
+        activeHearts = [];
+        
+        currentTheme = currentTheme === 'default' ? 'nversion' : 'default';
+        document.body.style.background = themes[currentTheme].background;
+        
+        const popup = document.querySelector('.welcome-popup');
+        popup.classList.add('show');
+        setTimeout(() => popup.classList.remove('show'), 5000);
+
+        const numberOfHearts = 30;
+        for (let i = 0; i < numberOfHearts; i++) {
+            const heart = createSpiralHeart(i, numberOfHearts);
+            activeHearts.push(heart);
+        }
+    });
+
+    document.getElementById("rainToggle").addEventListener("click", function() {
+        rain = !rain;
+        this.textContent = rain ? "Stop Rain" : "Rain";
+    });
+
+    // Snow toggle functionality
+    document.getElementById("snowToggle").addEventListener("click", function() {
+        snow = !snow;
+        this.style.opacity = snow ? "0.7" : "1";
+        if (!snow) {
+            document.querySelectorAll('.snowflake').forEach(flake => flake.remove());
+            snowflakes = [];
+        }
+    });
+
+    function createRaindrop() {
+        return {
+            x: Math.random() * canvas.width,
+            y: -10,
+            speed: Math.random() * 5 + 7,
+            length: Math.random() * 20 + 10
+        };
+    }
+
+    function createSnowflake() {
+        const flake = document.createElement('div');
+        flake.className = 'snowflake';
+        flake.innerHTML = '❄';
+        flake.style.left = Math.random() * window.innerWidth + 'px';
+        flake.style.top = '-20px';
+        flake.style.fontSize = (Math.random() * 15 + 10) + 'px';
+        flake.style.opacity = Math.random() * 0.7 + 0.3;
+        flake.style.animation = `snowfall ${Math.random() * 3 + 2}s linear forwards`;
+        
+        document.body.appendChild(flake);
+        
+        flake.addEventListener('animationend', () => {
+            flake.remove();
+            const index = snowflakes.indexOf(flake);
+            if (index > -1) {
+                snowflakes.splice(index, 1);
+            }
+        });
+        
+        return flake;
+    }
+
+    function drawRaindrop(drop) {
+        ctx.beginPath();
+        ctx.strokeStyle = 'rgba(255, 255, 255, 1.0)';
+        ctx.lineWidth = 1;
+        ctx.moveTo(drop.x, drop.y);
+        ctx.lineTo(drop.x, drop.y + drop.length);
+        ctx.stroke();
+    }
+
+    function createFlower() {
+        const types = ['rose', 'whiteRose', 'blueFlower'];
+        const flower = {
+            x: Math.random() * canvas.width,
+            y: -10,
+            size: Math.random() * 8 + 8,
+            speed: Math.random() * 1 + 0.5,
+            type: types[Math.floor(Math.random() * types.length)],
+            color: themes[currentTheme].colors[Math.floor(Math.random() * themes[currentTheme].colors.length)],
+            rotation: Math.random() * Math.PI * 2
+        };
+        flowers.push(flower);
+    }
+
+    function drawFlower(flower) {
+        ctx.save();
+        ctx.translate(flower.x, flower.y);
+        ctx.rotate(flower.rotation);
+        ctx.beginPath();
+
+        switch(flower.type) {
+            case 'rose':
+                // Draw stem
+                ctx.beginPath();
+                ctx.moveTo(0, flower.size);
+                ctx.lineTo(0, flower.size * 3);
+                ctx.strokeStyle = '#2d5a27';
+                ctx.lineWidth = flower.size/6;
+                ctx.stroke();
+
+                // Draw leaves
+                ctx.fillStyle = '#2d5a27';
+                ctx.beginPath();
+                ctx.ellipse(flower.size/2, flower.size * 2, flower.size/2, flower.size/4, Math.PI/4, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.ellipse(-flower.size/2, flower.size * 1.7, flower.size/2, flower.size/4, -Math.PI/4, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Draw rose petals in layers
+                ctx.fillStyle = flower.color;
+                for(let layer = 0; layer < 3; layer++) {
+                    for(let i = 0; i < 8; i++) {
+                        ctx.beginPath();
+                        let angle = (Math.PI * 2 / 8) * i + layer * 0.3;
+                        let radius = flower.size - layer * flower.size/4;
+                        ctx.ellipse(
+                            Math.cos(angle) * radius/3, 
+                            Math.sin(angle) * radius/3, 
+                            radius/2, 
+                            radius/4, 
+                            angle, 
+                            0, 
+                            Math.PI * 2
+                        );
+                        ctx.fill();
+                    }
+                }
+                ctx.beginPath();
+                ctx.arc(0, 0, flower.size/4, 0, Math.PI * 2);
+                ctx.fill();
+                break;
+
+            case 'whiteRose':
+                // Draw stem
+                ctx.beginPath();
+                ctx.moveTo(0, flower.size);
+                ctx.lineTo(0, flower.size * 3);
+                ctx.strokeStyle = '#2d5a27';
+                ctx.lineWidth = flower.size/6;
+                ctx.stroke();
+
+                // Draw leaves
+                ctx.fillStyle = '#2d5a27';
+                ctx.beginPath();
+                ctx.ellipse(flower.size/2, flower.size * 2, flower.size/2, flower.size/4, Math.PI/4, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.ellipse(-flower.size/2, flower.size * 1.7, flower.size/2, flower.size/4, -Math.PI/4, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Draw white rose petals
+                ctx.fillStyle = '#ffffff';
+                for(let layer = 0; layer < 4; layer++) {
+                    for(let i = 0; i < 8; i++) {
+                        ctx.beginPath();
+                        let angle = (Math.PI * 2 / 8) * i + layer * 0.4;
+                        let radius = flower.size - layer * flower.size/5;
+                        ctx.ellipse(
+                            Math.cos(angle) * radius/3,
+                            Math.sin(angle) * radius/3,
+                            radius/2,
+                            radius/4,
+                            angle,
+                            0,
+                            Math.PI * 2
+                        );
+                        ctx.fill();
+                    }
+                }
+                ctx.beginPath();
+                ctx.arc(0, 0, flower.size/4, 0, Math.PI * 2);
+                ctx.fill();
+                break;
+
+            case 'blueFlower':
+                // Draw stem
+                ctx.beginPath();
+                ctx.moveTo(0, flower.size);
+                ctx.lineTo(0, flower.size * 3);
+                ctx.strokeStyle = '#2d5a27';
+                ctx.lineWidth = flower.size/6;
+                ctx.stroke();
+
+                // Draw leaves
+                ctx.fillStyle = '#2d5a27';
+                ctx.beginPath();
+                ctx.ellipse(flower.size/2, flower.size * 2, flower.size/2, flower.size/4, Math.PI/4, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Draw petals
+                ctx.fillStyle = '#4287f5';
+                for(let i = 0; i < 5; i++) {
+                    ctx.beginPath();
+                    let angle = (Math.PI * 2 / 5) * i;
+                    ctx.ellipse(
+                        Math.cos(angle) * flower.size/2,
+                        Math.sin(angle) * flower.size/2,
+                        flower.size/1.5,
+                        flower.size/3,
+                        angle,
+                        0,
+                        Math.PI * 2
+                    );
+                    ctx.fill();
+                }
+                // Draw center
+                ctx.fillStyle = '#ffd700';
+                ctx.beginPath();
+                ctx.arc(0, 0, flower.size/4, 0, Math.PI * 2);
+                ctx.fill();
+                break;
+        }
+        ctx.restore();
+    }
+
+    function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        // Handle rain animation
+        if (rain) {
+            if (Math.random() < 0.3) raindrops.push(createRaindrop());
+            raindrops.forEach((drop, index) => {
+                drop.y += drop.speed;
+                drawRaindrop(drop);
+                if (drop.y > canvas.height) raindrops.splice(index, 1);
+            });
+        }
+
+        // Handle snow animation
+        if (snow && Math.random() < 0.1) {
+            const newFlake = createSnowflake();
+            snowflakes.push(newFlake);
+        }
+
+        // Handle flower animation
+        flowers.forEach((flower, index) => {
+            flower.rotation += 0.01;
+            drawFlower(flower);
+            flower.y += flower.speed;
+            if (flower.y > canvas.height + 20) flowers.splice(index, 1);
+        });
+
+        if (Math.random() < 0.03) createFlower();
+        requestAnimationFrame(animate);
+    }
+
+    animate();
+
+    window.addEventListener('resize', function() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    });
+
+    // Speech bubble texts
+    const messages = [
+        "Hey beautiful 🌹",
+        "Heyyyyyyyyyyy :)",
+        "Im a sunflower🌻guide for you today🌻",
+        "I was made just for you🥰",
+        "I'll take you through everything🌟",
+        "Let's play some music first⬇️",
+        "You had a Sunny Saturday?☀️",
+        "It was too hot today, let's add some rain☔️",
+        "Click↘️ to add rain s'il vous plait",
+        "☔️☔️☔️☔️☔️",
+        "It's all wet now😆",
+        "Maybe some snow as well↘️? Click❄️",
+        "KijiBaridi mate😂",
+
+
+        "Anyways, Welcome Jenny🙂",
+        "❤️This is all for you ❤️",
+        "Stay as long as you want😚",
+        "You see the buttons down there👀",
+        "Click the Son Button now for a big surprise😛",
+        "❤️Jennie Jane Jane Theme❤️",
+        "I hope you like it 🤭",
+        "Beacause I really like you🙂",
+        "And the flowers too🌹🌷🌺",
+        "Click it again💗and again and again🤭",
+        "One more time usiogope😂",
+        "You can restart the audio if its already ended or about to🤭",
+
+
+        "I'd give you a big hug if I was with you today💛🥹",
+        "It’s kind of sweet that it’s already been a month🥳",
+        "Time moved quickly, but something stayed.... us☺️",
+        "I’ve really liked getting to know you",
+        "Your smile, spending time with you🤭, your whole vibe 😝",
+        "Being around you just feels easy ",
+ 
+        "This is your space sweetheart❤️",
+        "From Me💋🤭..",
+        "..to you💖.",
+        "See you soon😙", 
+        "But WAITTTTTTTT!!!",
+        "Before I go,",
+        "There's something I wanted to ask you..👀",
+        "Click the last button🤭"
+    ];
+    
+    const speechBubble = document.querySelector('.speech-bubble');
+    let currentMessage = 0;
+    
+    function showMessage() {
+        speechBubble.textContent = messages[currentMessage];
+        speechBubble.classList.add('show');
+        
+        setTimeout(() => {
+            speechBubble.classList.remove('show');
+            
+            setTimeout(() => {
+                currentMessage = (currentMessage + 1) % messages.length;
+                showMessage();
+            }, 3000);
+        }, 5000);
+    }
+    
+    showMessage();
+
+    document.getElementById("homeBtn").addEventListener("click", () => {
+    window.location.href = "Jenny.html";
+});
+</script>
